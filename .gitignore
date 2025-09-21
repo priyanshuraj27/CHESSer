@@ -1,0 +1,57 @@
+# Root level gitignore for KnightlyAI
+
+# Chess Engines - Keep only the executable, exclude source code
+backend/engines/stockfish/
+!backend/engines/stockfish.exe
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Cache directories
+.cache/
+__pycache__/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependencies - will be covered by individual gitignores
+node_modules/
+venv/
+.venv/
+
+# Build outputs
+build/
+dist/
+out/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Redis dumps
+dump.rdb

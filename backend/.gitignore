@@ -169,3 +169,17 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
+# Chess engines - exclude source but keep executable
+engines/stockfish/
+!engines/stockfish.exe
+
+# Test files (temporary)
+test_*.py
+setup_*.py
+
+# Redis dumps
+dump.rdb
+
+# Engine logs
+engine.log
