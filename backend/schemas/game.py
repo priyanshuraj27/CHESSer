@@ -1,4 +1,4 @@
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, model_validator
 from typing import List, Optional
 
 class MoveAnalysis(BaseModel):
@@ -11,11 +11,11 @@ class GameAnalysisRequest(BaseModel):
     pgn: Optional[str]
     lichess_url: Optional[str]
 
-    @root_validator
-    def at_least_one_field(cls, values):
-        if not values.get("pgn") and not values.get("lichess_url"):
+    @model_validator(mode='after')
+    def at_least_one_field(self):
+        if not self.pgn and not self.lichess_url:
             raise ValueError("Either 'pgn' or 'lichess_url' must be provided in the request body.")
-        return values
+        return self
 
 class GameAnalysisResponse(BaseModel):
     accuracy: float

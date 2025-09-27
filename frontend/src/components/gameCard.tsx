@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Game } from "../types/chess";
 import GameViewer from "./chessboard"; 
 const ChessboardIcon = () => (
@@ -44,6 +45,7 @@ type GameCardProps = {
 
 export default function GameCard({ game, onShowBoard, onHideBoard, isSelected = false }: GameCardProps) {
     const [showBoard, setShowBoard] = useState(false);
+    const router = useRouter();
 
     const handleToggleBoard = () => {
         if (showBoard || isSelected) {
@@ -55,6 +57,12 @@ export default function GameCard({ game, onShowBoard, onHideBoard, isSelected = 
             setShowBoard(true);
             onShowBoard?.(game);
         }
+    };
+
+    const handleAnalyzeGame = () => {
+        // Navigate to analysis page with game data using base64 encoding to avoid URI issues
+        const gameData = btoa(JSON.stringify(game));
+        router.push(`/analysis?game=${gameData}`);
     };
 
     const gameDate = new Date(game.end_time * 1000).toLocaleDateString("en-US", {
@@ -80,6 +88,15 @@ export default function GameCard({ game, onShowBoard, onHideBoard, isSelected = 
                         </div>
                         <div className="flex-grow" />
                         <div className="w-full mt-4 flex flex-col space-y-2">
+                            <button
+                                onClick={handleAnalyzeGame}
+                                className="w-full flex items-center justify-center bg-green-600 hover:bg-green-500 rounded-lg px-4 py-2 font-semibold text-white transition-colors duration-200"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zM6 7a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                                </svg>
+                                Analyze Game
+                            </button>
                              <button
                                 onClick={handleToggleBoard}
                                 className={`w-full flex items-center justify-center ${

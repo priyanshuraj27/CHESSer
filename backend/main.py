@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import game_router
 
-app = FastAPI(title="KnightlyAI")
+app = FastAPI(title="CHESSER")
 
 # Add CORS middleware
 app.add_middleware(
