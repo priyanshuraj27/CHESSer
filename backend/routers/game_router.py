@@ -3,7 +3,7 @@ from schemas.game import GameAnalysisRequest, GameAnalysisResponse, MoveAnalysis
 from services.lichess_services import fetch_game_by_url
 from utils.chess_utils import parse_pgn_moves, pgn_to_fens
 from services.analysis_services import calculate_accuracy
-from services.enhanced_analysis_service import analysis_service
+from services.enhanced_analysis_service import get_analysis_service
 from typing import List, Optional
 import httpx
 import chess
@@ -73,7 +73,8 @@ async def analyze_fen(
             raise HTTPException(status_code=400, detail="Invalid FEN string")
         
         # Analyze the position
-        result = await analysis_service.analyze_position(fen, multi_pv, depth)
+        service = get_analysis_service()
+        result = await service.analyze_position(fen, multi_pv, depth)
         
         return {
             "success": True,
@@ -116,7 +117,8 @@ async def analyze_batch_fens(
                 raise HTTPException(status_code=400, detail=f"Invalid FEN at index {i}: {fen}")
         
         # Analyze all positions
-        results = await analysis_service.analyze_multiple_positions(fens, depth)
+        service = get_analysis_service()
+        results = await service.analyze_multiple_positions(fens, depth)
         
         return {
             "success": True,
@@ -158,7 +160,8 @@ async def analyze_pgn_positions(
             raise HTTPException(status_code=400, detail="No valid positions found in PGN")
         
         # Analyze positions
-        results = await analysis_service.analyze_multiple_positions(fens, depth)
+        service = get_analysis_service()
+        results = await service.analyze_multiple_positions(fens, depth)
         
         return {
             "success": True,

@@ -14,6 +14,7 @@ class GameAnalysisRequest(BaseModel):
     @model_validator(mode='after')
     def at_least_one_field(self):
         if not self.pgn and not self.lichess_url:
+
             raise ValueError("Either 'pgn' or 'lichess_url' must be provided in the request body.")
         return self
 

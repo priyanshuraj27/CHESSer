@@ -8,11 +8,14 @@ import { Game } from "../../types/chess";
 function AnalysisContent() {
     const searchParams = useSearchParams();
     const [game, setGame] = useState<Game | null>(null);
+    const [initialMoveIndex, setInitialMoveIndex] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // Get game data from URL parameters
         const gameData = searchParams.get('game');
+        const moveParam = searchParams.get('move');
+        
         if (gameData) {
             try {
                 // Try base64 decoding first (new method), fallback to URL decoding (old method)
@@ -31,6 +34,14 @@ function AnalysisContent() {
                     }
                 }
                 setGame(parsedGame);
+                
+                // Set initial move index if provided
+                if (moveParam) {
+                    const moveIndex = parseInt(moveParam, 10);
+                    if (!isNaN(moveIndex)) {
+                        setInitialMoveIndex(moveIndex);
+                    }
+                }
             } catch (error) {
                 console.error('Error parsing game data:', error);
                 console.error('Game data received:', gameData?.substring(0, 200) + '...');
@@ -85,71 +96,106 @@ function AnalysisContent() {
                         </a>
                     </div>
                     
-                    {/* Game Info */}
-                    <div className="bg-slate-800 rounded-lg p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h3 className="text-lg font-semibold text-white mb-3">Players</h3>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                        <span className={`font-bold ${game.white.result === 'win' ? 'text-green-400' : 'text-slate-300'}`}>
-                                            {game.white.username}
-                                        </span>
-                                        <span className="text-slate-400">({game.white.rating || 'N/A'})</span>
+                    {/* Enhanced Game Info */}
+                    <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-lg p-6 shadow-lg">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Players */}
+                            <div className="lg:col-span-2">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-lg font-semibold text-white">Match Details</h3>
+                                    <div className="flex items-center gap-2 text-sm text-slate-400">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {new Date(game.end_time * 1000).toLocaleDateString('en-US', { 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                        })}
+                                    </div>
+                                </div>
+                                
+                                <div className="bg-slate-900/50 rounded-lg p-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-3 h-3 bg-white rounded-full"></div>
+                                            <div>
+                                                <span className={`font-bold text-lg ${game.white.result === 'win' ? 'text-green-400' : 'text-slate-200'}`}>
+                                                    {game.white.username}
+                                                </span>
+                                                <span className="text-slate-400 ml-2">({game.white.rating || 'Unrated'})</span>
+                                            </div>
+                                        </div>
                                         {game.white.result === 'win' && (
-                                            <span className="text-xs font-bold text-green-400 bg-green-900/50 px-2 py-1 rounded-md">
-                                                WIN
+                                            <span className="text-xs font-bold text-green-400 bg-green-900/50 px-3 py-1 rounded-full">
+                                                WINNER
                                             </span>
                                         )}
                                     </div>
-                                    <div className="text-slate-500 text-sm text-center">vs</div>
-                                    <div className="flex items-center justify-between">
-                                        <span className={`font-bold ${game.black.result === 'win' ? 'text-green-400' : 'text-slate-300'}`}>
-                                            {game.black.username}
+                                    
+                                    <div className="text-center py-2">
+                                        <span className="text-2xl font-bold text-slate-300">
+                                            {game.white.result === 'win' ? '1' : 
+                                             game.black.result === 'win' ? '0' : '½'}
+                                            -
+                                            {game.black.result === 'win' ? '1' : 
+                                             game.white.result === 'win' ? '0' : '½'}
                                         </span>
-                                        <span className="text-slate-400">({game.black.rating || 'N/A'})</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-3 h-3 bg-gray-900 rounded-full border border-gray-600"></div>
+                                            <div>
+                                                <span className={`font-bold text-lg ${game.black.result === 'win' ? 'text-green-400' : 'text-slate-200'}`}>
+                                                    {game.black.username}
+                                                </span>
+                                                <span className="text-slate-400 ml-2">({game.black.rating || 'Unrated'})</span>
+                                            </div>
+                                        </div>
                                         {game.black.result === 'win' && (
-                                            <span className="text-xs font-bold text-green-400 bg-green-900/50 px-2 py-1 rounded-md">
-                                                WIN
+                                            <span className="text-xs font-bold text-green-400 bg-green-900/50 px-3 py-1 rounded-full">
+                                                WINNER
                                             </span>
                                         )}
                                     </div>
                                 </div>
                             </div>
                             
+                            {/* Game Stats */}
                             <div>
-                                <h3 className="text-lg font-semibold text-white mb-3">Game Details</h3>
-                                <div className="space-y-2 text-slate-400">
-                                    <div className="flex justify-between">
-                                        <span>Time Control:</span>
-                                        <span className="text-slate-300">{game.time_class}</span>
+                                <h3 className="text-lg font-semibold text-white mb-4">Game Info</h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg">
+                                        <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <div>
+                                            <div className="text-slate-400 text-xs">Time Control</div>
+                                            <div className="text-white font-semibold capitalize">{game.time_class}</div>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span>Date:</span>
-                                        <span className="text-slate-300">
-                                            {new Date(game.end_time * 1000).toLocaleDateString()}
-                                        </span>
+                                    
+                                    <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg">
+                                        <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        <div>
+                                            <div className="text-slate-400 text-xs">Game Type</div>
+                                            <div className="text-white font-semibold">Live Chess</div>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span>Result:</span>
-                                        <span className="text-slate-300">
-                                            {game.white.result === 'win' ? '1-0' : 
-                                             game.black.result === 'win' ? '0-1' : '½-½'}
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                <div className="mt-4">
+                                    
                                     <a
                                         href={game.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                                        className="flex items-center justify-center gap-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-3 rounded-lg font-medium transition-colors"
                                     >
-                                        View on Chess.com
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                         </svg>
+                                        View on Chess.com
                                     </a>
                                 </div>
                             </div>
@@ -162,7 +208,7 @@ function AnalysisContent() {
                     <h2 className="text-2xl font-bold text-white mb-6">Interactive Analysis</h2>
                     {game.pgn ? (
                         <div className="flex justify-center">
-                            <GameViewer pgn={game.pgn} gameData={game} />
+                            <GameViewer pgn={game.pgn} gameData={game} initialMoveIndex={initialMoveIndex} />
                         </div>
                     ) : (
                         <div className="text-center text-slate-400 py-8">

@@ -506,5 +506,12 @@ class EnhancedAnalysisService:
         if self.redis_client:
             self.redis_client.close()
 
-# Global instance
-analysis_service = EnhancedAnalysisService()
+# Global instance - lazy initialization
+analysis_service = None
+
+def get_analysis_service():
+    """Get or create the analysis service instance"""
+    global analysis_service
+    if analysis_service is None:
+        analysis_service = EnhancedAnalysisService()
+    return analysis_service

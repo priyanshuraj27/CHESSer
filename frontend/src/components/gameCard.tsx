@@ -61,8 +61,42 @@ export default function GameCard({ game, onShowBoard, onHideBoard, isSelected = 
 
     const handleAnalyzeGame = () => {
         // Navigate to analysis page with game data using base64 encoding to avoid URI issues
-        const gameData = btoa(JSON.stringify(game));
+        // Clean the game data to remove control characters that could break JSON parsing
+        const cleanGame = {
+            ...game,
+            pgn: game.pgn.replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+        };
+        const gameData = btoa(JSON.stringify(cleanGame));
         router.push(`/analysis?game=${gameData}`);
+    };
+
+    const handleReviewGame = () => {
+        console.log('🎯 [GAME REVIEW] Button clicked!');
+        console.log('📊 [GAME REVIEW] Game object:', game);
+        console.log('🎮 [GAME REVIEW] Game details:', {
+            white: game.white.username,
+            black: game.black.username,
+            url: game.url,
+            timeClass: game.time_class,
+            endTime: new Date(game.end_time * 1000).toISOString()
+        });
+        console.log('📝 [GAME REVIEW] Original PGN length:', game.pgn.length);
+        
+        // Navigate to review page with game data using base64 encoding to avoid URI issues
+        // Clean the game data to remove control characters that could break JSON parsing
+        const cleanGame = {
+            ...game,
+            pgn: game.pgn.replace(/[\x00-\x1F\x7F-\x9F]/g, '')
+        };
+        
+        console.log('🧹 [GAME REVIEW] Cleaned PGN length:', cleanGame.pgn.length);
+        
+        const gameData = btoa(JSON.stringify(cleanGame));
+        console.log('🔗 [GAME REVIEW] Base64 encoded, navigating to review page');
+        
+        const reviewUrl = `/review?game=${gameData}`;
+        router.push(reviewUrl);
+        console.log('✅ [GAME REVIEW] Navigation initiated');
     };
 
     const gameDate = new Date(game.end_time * 1000).toLocaleDateString("en-US", {
@@ -88,6 +122,15 @@ export default function GameCard({ game, onShowBoard, onHideBoard, isSelected = 
                         </div>
                         <div className="flex-grow" />
                         <div className="w-full mt-4 flex flex-col space-y-2">
+                            <button
+                                onClick={handleReviewGame}
+                                className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2 font-semibold text-white transition-colors duration-200"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Game Review
+                            </button>
                             <button
                                 onClick={handleAnalyzeGame}
                                 className="w-full flex items-center justify-center bg-green-600 hover:bg-green-500 rounded-lg px-4 py-2 font-semibold text-white transition-colors duration-200"
